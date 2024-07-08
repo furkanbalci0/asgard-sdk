@@ -29,7 +29,7 @@ jobs:
         id: bump_version
         run: |
           current_version=${{ steps.get_version.outputs.current_version }}
-          IFS='.' read -r -a version_parts <<< "$current_version"
+          IFS='.' read -r - version_parts <<< "$current_version"
           version_parts[2]=$((version_parts[2]+1))
           new_version="${version_parts[0]}.${version_parts[1]}.${version_parts[2]}"
           echo "::set-output name=new_version::$new_version"
