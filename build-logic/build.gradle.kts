@@ -5,11 +5,14 @@ plugins {
 }
 
 android {
-    namespace = "com.fmsstech.core"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    namespace = "com.fmsstech.build_logic"
+    compileSdk = 34
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
+        minSdk = 24
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -18,7 +21,6 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
-
     buildFeatures {
         compose = true
     }
@@ -32,6 +34,7 @@ android {
 }
 
 dependencies {
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

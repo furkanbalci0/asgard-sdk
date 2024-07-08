@@ -2,6 +2,7 @@
 # Configuration
 minSdk = "24"
 compileSdk = "34"
+targetSdk = "34"
 jvmTarget = "17"
 versionName = "0.0.1"
 versionCode = "1"
