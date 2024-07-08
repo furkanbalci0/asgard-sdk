@@ -34,15 +34,23 @@ jobs:
           new_version="${version_parts[0]}.${version_parts[1]}.${version_parts[2]}"
           echo "::set-output name=new_version::$new_version"
 
-      - name: Build .aar with new version
-        run: |
-          ./gradlew assembleRelease -Pversion=${{ steps.bump_version.outputs.new_version }}
+      - name: Build all .aar files with new version
+        run: ./gradlew assembleRelease -Pversion=${{ steps.bump_version.outputs.new_version }}
 
-      - name: Upload Release Artifact
+      - name: Find and upload .aar files
+        run: |
+          for file in $(find . -name "*.aar"); do
+            echo "Uploading $file"
+            echo "$file" >> files-to-upload.txt
+          done
+        id: prepare_files
+
+      - name: Upload Release Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: my-library.aar
-          path: app/build/outputs/aar/app-release.aar
+          name: my-library-aars
+          path: |
+            $(cat files-to-upload.txt | tr '\n' ',')
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -50,6 +58,6 @@ jobs:
           tag_name: ${{ steps.bump_version.outputs.new_version }}
           name: Release ${{ steps.bump_version.outputs.new_version }}
           body: "Release of version ${{ steps.bump_version.outputs.new_version }}."
-          files: app/build/outputs/aar/app-release.aar
+          files: $(cat files-to-upload.txt | tr '\n' ',')
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
