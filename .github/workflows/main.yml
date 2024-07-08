@@ -21,7 +21,9 @@ jobs:
 
       - name: Get current version
         id: get_version
-        run: echo "::set-output name=current_version::$(grep 'VERSION_NAME=' gradle.properties | cut -d'=' -f2)"
+        run: |
+          current_version=$(grep 'VERSION_NAME=' gradle.properties | cut -d'=' -f2)
+          echo "::set-output name=current_version::$current_version"
 
       - name: Bump version
         id: bump_version
@@ -32,20 +34,9 @@ jobs:
           new_version="${version_parts[0]}.${version_parts[1]}.${version_parts[2]}"
           echo "::set-output name=new_version::$new_version"
 
-      - name: Update gradle.properties version
+      - name: Build .aar with new version
         run: |
-          new_version=${{ steps.bump_version.outputs.new_version }}
-          sed -i "s/VERSION_NAME=${{ steps.get_version.outputs.current_version }}/VERSION_NAME=$new_version/" gradle.properties
-
-      - name: Commit version bump
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git commit -am "Bump version to ${{ steps.bump_version.outputs.new_version }}"
-          git push origin main
-
-      - name: Build .aar
-        run: ./gradlew assembleRelease
+          ./gradlew assembleRelease -Pversion=${{ steps.bump_version.outputs.new_version }}
 
       - name: Upload Release Artifact
         uses: actions/upload-artifact@v3
