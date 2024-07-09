@@ -23,26 +23,23 @@ jobs:
         id: get_version
         run: |
           current_version=$(grep 'VERSION_NAME=' gradle.properties | cut -d'=' -f2)
-          echo "::set-output name=current_version::$current_version"
+          echo "current_version=$current_version" >> $GITHUB_ENV
 
       - name: Bump version
         id: bump_version
         run: |
-          current_version=${{ steps.get_version.outputs.current_version }}
+          current_version=${{ env.current_version }}
           IFS='.' read -r -a version_parts <<< "$current_version"
           version_parts[2]=$((version_parts[2]+1))
           new_version="${version_parts[0]}.${version_parts[1]}.${version_parts[2]}"
-          echo "::set-output name=new_version::$new_version"
+          echo "new_version=$new_version" >> $GITHUB_ENV
 
       - name: Build all .aar files with new version
-        run: ./gradlew assembleRelease -Pversion=${{ steps.bump_version.outputs.new_version }}
+        run: ./gradlew assembleRelease -Pversion=${{ env.new_version }}
 
       - name: Find and upload .aar files
         run: |
-          for file in $(find . -name "*.aar"); do
-            echo "Uploading $file"
-            echo "$file" >> files-to-upload.txt
-          done
+          find . -name "*.aar" -print0 | xargs -0 echo >> files-to-upload.txt
         id: prepare_files
 
       - name: Upload Release Artifacts
@@ -55,9 +52,9 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.bump_version.outputs.new_version }}
-          name: Release ${{ steps.bump_version.outputs.new_version }}
-          body: "Release of version ${{ steps.bump_version.outputs.new_version }}."
+          tag_name: ${{ env.new_version }}
+          name: Release ${{ env.new_version }}
+          body: "Release of version ${{ env.new_version }}."
           files: $(cat files-to-upload.txt | tr '\n' ',')
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
