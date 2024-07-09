@@ -37,12 +37,12 @@ jobs:
           sed -i "s/VERSION_NAME=.*/VERSION_NAME=$new_version/" gradle.properties
 
       - name: Build and publish AAR files
-        run: ./gradlew publish -Pversion=${{ env.new_version }}
+        run: ./gradlew assembleRelease -Pversion=${{ env.new_version }}
 
       - name: Find .aar files
         id: find_files
         run: |
-          aar_files=$(find . -name "*.aar" | tr '\n' ',')
+          aar_files=$(find . -name "*.aar")
           echo "aar_files=$aar_files" >> $GITHUB_ENV
 
       - name: Upload Release Artifacts
