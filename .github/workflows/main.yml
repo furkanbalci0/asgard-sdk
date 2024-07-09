@@ -33,9 +33,11 @@ jobs:
           version_parts[2]=$((version_parts[2]+1))
           new_version="${version_parts[0]}.${version_parts[1]}.${version_parts[2]}"
           echo "new_version=$new_version" >> $GITHUB_ENV
+          # Update the version in gradle.properties
+          sed -i "s/VERSION_NAME=.*/VERSION_NAME=$new_version/" gradle.properties
 
-      - name: Build all .aar files with new version
-        run: ./gradlew assembleRelease -Pversion=${{ env.new_version }}
+      - name: Build and publish AAR files
+        run: ./gradlew publish -Pversion=${{ env.new_version }}
 
       - name: Find .aar files
         id: find_files
