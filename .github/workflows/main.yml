@@ -42,14 +42,18 @@ jobs:
         name: AAR-files
         path: .
 
+    - name: Determine Tag Version
+      id: get_version
+      run: echo "::set-output name=version::v1.0.0"
+
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.sha }}
-        release_name: Release ${{ github.sha }}
+        tag_name: ${{ steps.get_version.outputs.version }}
+        release_name: Release ${{ steps.get_version.outputs.version }}
         draft: false
         prerelease: false
 
@@ -59,5 +63,5 @@ jobs:
       run: |
         for file in $(find . -name "*.aar"); do
           echo "Uploading $file..."
-          gh release upload ${{ github.sha }} "$file" --clobber
+          gh release upload ${{ steps.create_release.outputs.upload_url }} "$file" --clobber
         done
