@@ -23,3 +23,4 @@ rootProject.name = "asgard-sdk"
 include(":app")
 include(":core")
 include(":build-logic")
+include(":navigation")
