@@ -36,6 +36,11 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # Ensure full history is fetched
+
     - name: Download AAR artifacts
       uses: actions/download-artifact@v2
       with:
