@@ -57,6 +57,9 @@ jobs:
         draft: false
         prerelease: false
 
+    - name: Install GitHub CLI
+      run: sudo apt-get install -y gh
+
     - name: Upload AAR to Release
       env:
         GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
