@@ -37,17 +37,17 @@ jobs:
       - name: Build all .aar files with new version
         run: ./gradlew assembleRelease -Pversion=${{ env.new_version }}
 
-      - name: Find and upload .aar files
+      - name: Find .aar files
+        id: find_files
         run: |
-          find . -name "*.aar" -print0 | xargs -0 echo >> files-to-upload.txt
-        id: prepare_files
+          aar_files=$(find . -name "*.aar" | tr '\n' ',')
+          echo "aar_files=$aar_files" >> $GITHUB_ENV
 
       - name: Upload Release Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: my-library-aars
-          path: |
-            $(cat files-to-upload.txt | tr '\n' ',')
+          path: ${{ env.aar_files }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -55,6 +55,6 @@ jobs:
           tag_name: ${{ env.new_version }}
           name: Release ${{ env.new_version }}
           body: "Release of version ${{ env.new_version }}."
-          files: $(cat files-to-upload.txt | tr '\n' ',')
+          files: ${{ env.aar_files }}
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
