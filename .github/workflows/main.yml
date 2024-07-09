@@ -17,48 +17,46 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'zulu'
-          java-version: '11'
+          java-version: '17'
 
       - name: Get current version
         id: get_version
-        run: echo "::set-output name=current_version::$(grep 'VERSION_NAME=' gradle.properties | cut -d'=' -f2)"
+        run: |
+          current_version=$(grep 'VERSION_NAME=' gradle.properties | cut -d'=' -f2)
+          echo "current_version=$current_version" >> $GITHUB_ENV
 
       - name: Bump version
         id: bump_version
         run: |
-          current_version=${{ steps.get_version.outputs.current_version }}
+          current_version=${{ env.current_version }}
           IFS='.' read -r -a version_parts <<< "$current_version"
           version_parts[2]=$((version_parts[2]+1))
           new_version="${version_parts[0]}.${version_parts[1]}.${version_parts[2]}"
-          echo "::set-output name=new_version::$new_version"
+          echo "new_version=$new_version" >> $GITHUB_ENV
+          # Update the version in gradle.properties
+          sed -i "s/VERSION_NAME=.*/VERSION_NAME=$new_version/" gradle.properties
 
-      - name: Update gradle.properties version
+      - name: Build and publish AAR files
+        run: ./gradlew publish -Pversion=${{ env.new_version }}
+
+      - name: Find .aar files
+        id: find_files
         run: |
-          new_version=${{ steps.bump_version.outputs.new_version }}
-          sed -i "s/VERSION_NAME=${{ steps.get_version.outputs.current_version }}/VERSION_NAME=$new_version/" gradle.properties
+          aar_files=$(find . -name "*.aar" | tr '\n' ',')
+          echo "aar_files=$aar_files" >> $GITHUB_ENV
 
-      - name: Commit version bump
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git commit -am "Bump version to ${{ steps.bump_version.outputs.new_version }}"
-          git push origin main
-
-      - name: Build .aar
-        run: ./gradlew assembleRelease
-
-      - name: Upload Release Artifact
+      - name: Upload Release Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: my-library.aar
-          path: app/build/outputs/aar/app-release.aar
+          name: my-library-aars
+          path: ${{ env.aar_files }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.bump_version.outputs.new_version }}
-          name: Release ${{ steps.bump_version.outputs.new_version }}
-          body: "Release of version ${{ steps.bump_version.outputs.new_version }}."
-          files: app/build/outputs/aar/app-release.aar
+          tag_name: ${{ env.new_version }}
+          name: Release ${{ env.new_version }}
+          body: "Release of version ${{ env.new_version }}."
+          files: ${{ env.aar_files }}
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
