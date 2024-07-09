@@ -36,19 +36,13 @@ android {
 
 publishing {
     publications {
-        create<MavenPublication>("maven") {
+        register<MavenPublication>("release") {
             groupId = "com.github.furkanbalci0"
-            artifactId = "asgard-sdk-core"
+            artifactId = "asgard-sdk-logic"
             version = "1.0.1"
-
             afterEvaluate {
                 from(components["release"])
             }
-        }
-    }
-    repositories {
-        maven {
-            url = uri("${buildDir}/repo")
         }
     }
 }
