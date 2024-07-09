@@ -66,5 +66,5 @@ jobs:
       run: |
         for file in $(find . -name "*.aar"); do
           echo "Uploading $file..."
-          gh release upload ${{ steps.create_release.outputs.upload_url }} "$file" --clobber --name "$(basename "$file")"
+          gh release upload ${{ steps.get_version.outputs.version }} "$file" --clobber
         done
