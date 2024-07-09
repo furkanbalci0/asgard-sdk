@@ -43,13 +43,16 @@ jobs:
         id: find_files
         run: |
           aar_files=$(find . -name "*.aar")
-          echo "aar_files=$aar_files" >> $GITHUB_ENV
+          echo "aar_files<<EOF" >> $GITHUB_ENV
+          echo "$aar_files" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Upload Release Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: my-library-aars
-          path: ${{ env.aar_files }}
+          path: |
+            ${{ env.aar_files }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -57,6 +60,7 @@ jobs:
           tag_name: ${{ env.new_version }}
           name: Release ${{ env.new_version }}
           body: "Release of version ${{ env.new_version }}."
-          files: ${{ env.aar_files }}
+          files: |
+            ${{ env.aar_files }}
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
