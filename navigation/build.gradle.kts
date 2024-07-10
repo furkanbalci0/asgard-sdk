@@ -32,13 +32,8 @@ android {
 
 publishing {
     publications {
-        register<MavenPublication>("release") {
-            groupId = "com.github.furkanbalci0"
-            artifactId = "navigation"
-            version = "1.0.1"
-            afterEvaluate {
-                from(components["release"])
-            }
+        create<MavenPublication>("release") {
+            from(components["release"])
         }
     }
 }
