@@ -26,11 +26,11 @@ android {
         compose = true
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
 
@@ -64,7 +64,7 @@ publishing {
                     }
 
                     scm {
-                        connection.set("scm:git:github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME.git")
+                        connection.set("scm:git:github.com/furkanbalci0/asgard-sdk.git")
                         developerConnection.set("scm:git:ssh://github.com:furkanbalci0/asgard-sdk.git")
                         url.set("https://github.com/furkanbalci0/asgard-sdk")
                     }
