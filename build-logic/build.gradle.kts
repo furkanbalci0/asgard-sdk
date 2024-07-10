@@ -37,7 +37,39 @@ android {
 publishing {
     publications {
         create<MavenPublication>("release") {
-            from(components["release"])
+            afterEvaluate {
+                from(components["release"])
+                groupId = "com.fmsstech"
+                artifactId = project.name
+                version = libs.versions.versionName.get()
+
+                pom {
+                    name.set(project.name)
+                    description.set("Description of your module")
+                    url.set("https://github.com/furkanbalci0/asgard-sdk")
+
+                    licenses {
+                        license {
+                            name.set("The Apache License, Version 2.0")
+                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id.set("furkanbalci0")
+                            name.set("Furkan BALCI")
+                            email.set("balci@furki.net")
+                        }
+                    }
+
+                    scm {
+                        connection.set("scm:git:github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME.git")
+                        developerConnection.set("scm:git:ssh://github.com:furkanbalci0/asgard-sdk.git")
+                        url.set("https://github.com/furkanbalci0/asgard-sdk")
+                    }
+                }
+            }
         }
     }
 }
